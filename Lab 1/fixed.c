@@ -3,6 +3,7 @@
 // 10/20/18
 
 #include <stdint.h>
+#include <stdio.h>
 #include "ST7735.h"
 
 /****************ST7735_sDecOut2***************
@@ -20,7 +21,33 @@ Parameter LCD display
     31    "  0.31" 
 -12345    "-**.**"
  */ 
-void ST7735_sDecOut2(int32_t n);
+void ST7735_sDecOut2(int32_t n){
+  printf("%d\t", n);                                        // output n
+  if((n > 9999) || (n < -9999)){                            // out of range
+    printf(" **.**\r");
+  }
+  
+  if(n < 0){                                                // output sign and take absolute value
+    printf("-");
+    n *= -1;
+  }
+  else{
+    printf(" ");
+  }
+  
+  if(n/1000){                                               // output all 4 digits and decimal point
+    printf("%d", n/1000);
+    n %= 1000;
+  }
+  else{
+    printf(" ");                                            // not signifacnt figure
+  }
+  printf("%d.", n/100);
+  n %= 100;
+  printf("%d", n/10);
+  n %= 10;
+  printf("%d\r", n);
+}
 
 
 /**************ST7735_uBinOut6***************
@@ -45,7 +72,40 @@ Parameter LCD display
  64000	  "***.**"
 */
 void ST7735_uBinOut6(uint32_t n){
+  printf("%u\t", n);                                        // output n
+  if(n >= 64000){
+    printf("***.**\r");                                     // out of range
+  }
+  
+  uint32_t intDigits = n >> 6;                              // right shift n for only whole integer values
+  if(intDigits/100){                                        // output all 3 integer digits and decimal point
+    printf("%u", intDigits/100);
+    intDigits %= 100;
+  }
+  else{
+    printf(" ");                                            // not signifacnt figure
+  }
+  if(intDigits/10){
+    printf("%u", intDigits/10);
+    intDigits %= 10;
+  }
+  else{
+    printf(" ");                                            // not signifacnt figure
+  }
+  printf("%u.", intDigits);
+  
+  n &= 0x3F;                                                // bit mask for "decimal" values
+  uint32_t binDigit = 1000000/64;                           // calculate 1/64 digits
+  binDigit *= n;
+  printf("%u", binDigit/100000);
+  binDigit %= 100000;
+  printf("%u\r", binDigit/10000);
 }
+
+int32_t Xmi;
+int32_t Xma;
+int32_t Ymi;
+int32_t Yma;
 
 /**************ST7735_XYplotInit***************
  Specify the X and Y axes for an x-y scatter plot
@@ -59,6 +119,13 @@ void ST7735_uBinOut6(uint32_t n){
  assumes minX < maxX, and miny < maxY
 */
 void ST7735_XYplotInit(char *title, int32_t minX, int32_t maxX, int32_t minY, int32_t maxY){
+  Output_Clear();                                           // clear display
+  ST7735_SetCursor(0, 0);                                   // reset cursor
+  printf("%s", title);                                      // display title
+  Xmi = minX;                                              // save X, Y boundraries
+  Xma = maxX;
+  Ymi = minY;
+  Yma = maxY;
 }
 
 /**************ST7735_XYplot***************
@@ -71,4 +138,7 @@ void ST7735_XYplotInit(char *title, int32_t minX, int32_t maxX, int32_t minY, in
  neglect any points outside the minX maxY minY maxY bounds
 */
 void ST7735_XYplot(uint32_t num, int32_t bufX[], int32_t bufY[]){
+  
 }
+
+
