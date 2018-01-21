@@ -6,6 +6,10 @@
 #include <stdio.h>
 #include "ST7735.h"
 
+void writeVal(int32_t n){
+  
+}
+
 /****************ST7735_sDecOut2***************
  converts fixed point number to LCD
  format signed 32-bit with resolution 0.01
@@ -22,31 +26,45 @@ Parameter LCD display
 -12345    "-**.**"
  */ 
 void ST7735_sDecOut2(int32_t n){
-  printf("%d\t", n);                                        // output n
-  if((n > 9999) || (n < -9999)){                            // out of range
-    printf(" **.**\r");
-  }
-  
   if(n < 0){                                                // output sign and take absolute value
-    printf("-");
     n *= -1;
+    if((n > 9999) || (n < -9999)){                            // out of range
+      printf("-**.**");
+      return;
+    }
+
+    if(n/1000){                                               // output all 4 digits and decimal point
+      printf("-%d", n/1000);
+      n %= 1000;
+    }
+    else{
+      printf(" -");                                            // not signifacnt figure
+    }
+    printf("%d.", n/100);
+    n %= 100;
+    printf("%d", n/10);
+    n %= 10;
+    printf("%d", n);
   }
   else{
-    printf(" ");
-  }
+    if((n > 9999) || (n < -9999)){                            // out of range
+      printf(" **.**");
+      return;
+    }
   
-  if(n/1000){                                               // output all 4 digits and decimal point
-    printf("%d", n/1000);
-    n %= 1000;
+    if(n/1000){                                               // output all 4 digits and decimal point
+      printf(" %d", n/1000);
+      n %= 1000;
+    }
+    else{
+      printf("  ");                                            // not signifacnt figure
+    }
+    printf("%d.", n/100);
+    n %= 100;
+    printf("%d", n/10);
+    n %= 10;
+    printf("%d", n);
   }
-  else{
-    printf(" ");                                            // not signifacnt figure
-  }
-  printf("%d.", n/100);
-  n %= 100;
-  printf("%d", n/10);
-  n %= 10;
-  printf("%d\r", n);
 }
 
 
@@ -72,20 +90,23 @@ Parameter LCD display
  64000	  "***.**"
 */
 void ST7735_uBinOut6(uint32_t n){
-  printf("%u\t", n);                                        // output n
   if(n >= 64000){
-    printf("***.**\r");                                     // out of range
+    printf("***.**");                                     // out of range
+    return;
   }
+  
+  int32_t digFlag = 0;
   
   uint32_t intDigits = n >> 6;                              // right shift n for only whole integer values
   if(intDigits/100){                                        // output all 3 integer digits and decimal point
     printf("%u", intDigits/100);
     intDigits %= 100;
+    digFlag = 1;
   }
   else{
     printf(" ");                                            // not signifacnt figure
   }
-  if(intDigits/10){
+  if(intDigits/10 || digFlag){
     printf("%u", intDigits/10);
     intDigits %= 10;
   }
@@ -99,7 +120,7 @@ void ST7735_uBinOut6(uint32_t n){
   binDigit *= n;
   printf("%u", binDigit/100000);
   binDigit %= 100000;
-  printf("%u\r", binDigit/10000);
+  printf("%u", binDigit/10000);
 }
 
 int32_t Xmi;
@@ -138,7 +159,23 @@ void ST7735_XYplotInit(char *title, int32_t minX, int32_t maxX, int32_t minY, in
  neglect any points outside the minX maxY minY maxY bounds
 */
 void ST7735_XYplot(uint32_t num, int32_t bufX[], int32_t bufY[]){
+  int32_t i;
+  int32_t x, y;
+  int32_t rangeX = Xma - Xmi;               // calculate range of x and y from min and max
+  int32_t rangeY = Yma - Ymi;
   
+  for(i = 0; i < num; i++){
+    if(bufX[i] < Xmi || bufX[i] > Xma || bufY[i] < Ymi || bufY[i] > Yma){         // out of x,y range
+      continue;
+    }
+    x = (bufX[i] - Xmi) * 127;              // calculate x and y coord
+    x /= rangeX;                            // within the given x/y min/max
+    y = (Yma - bufY[i]) * 127;              // and fitting within 128 pixels
+    y /= rangeY;
+    y += 32;                                // offset y, because y has 160 pixels to x 128
+    
+    ST7735_DrawPixel(x, y, ST7735_MAGENTA); // draw pixel
+  }
 }
 
 
