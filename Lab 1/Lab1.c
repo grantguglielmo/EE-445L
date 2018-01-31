@@ -27,6 +27,8 @@ void DelayWait10ms(uint32_t n);
 void PortF_Init(void);
 // const will place these structures in ROM
 
+extern void Test4(void);
+
 struct outTestCase1{    // used to test routines
   int32_t InNumber;     // test input number
   char OutBuffer[12];   // Output String  
@@ -94,8 +96,9 @@ const int32_t StarXbuf[50] = {0, -6, -12, -18, -24, -30, -35, -41, -47, -53, 59,
 const int32_t StarYbuf[50] = {190, 172, 154, 136, 118, 100, 81, 63, 45, 27, 9, 27, 45, 63, 81, 100, 118, 136, 154, 172, 121, 121, 121, 121, 121, 121, 121, 121, 121, 121, 9, 20, 31, 43, 54, 65, 76, 87, 99, 110, 121, 110, 99, 87, 76, 65, 54, 43, 31, 20
 };
 
+
 int main(void){uint32_t i;
-  PLL_Init(Bus80MHz); 
+  PLL_Init(Bus80MHz);
   PortF_Init();
   ST7735_InitR(INITR_REDTAB);
   while(1){
@@ -124,7 +127,8 @@ int main(void){uint32_t i;
     ST7735_XYplotInit("Star- upper right",-450, 150, -400, 200);
     ST7735_XYplot(50,(int32_t *)StarXbuf,(int32_t *)StarYbuf);
     Pause(); 
-  } 
+    
+  }
 } 
 
 // PF4 is input

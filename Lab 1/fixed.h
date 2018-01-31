@@ -1,8 +1,12 @@
-// filename ******** fixed.h ************** 
-// possible header file for Lab 1 Spring 2018
-// feel free to change the specific syntax of your system
-// Grant Guglielmo
-// 10/20/18
+/* ** fixed.h **
+* Grant Guglielmo, Malek Al Sukhni
+* Created: 1/20/18
+* contains fixed point conversion functions and diagram plotting functions
+* Lab 1
+* Jamie Campos
+* Last modified: 1/23/18
+* outputs to ST7735 LCD screen connected to pins: PA2, PA3, PA5, PA6, PA7, 3.3 V and GND
+*/
 
 #include <stdint.h>
 

@@ -198,130 +198,28 @@ void longtermtest(void){
   }
 }
 
+volatile float T;    // temperature in C
+volatile uint32_t N; // 12-bit ADC value
+void Test1(void){
+  for(N=0; N<4096; N++){
+    T = 10.0+ 0.009768*N; 	
+  }
+}
+
+void Test2(void){
+  for(N=0; N<4096; N++){
+    T = 1000 + ((125*N+64)>>7); 	
+  }
+}
+
+
 uint32_t DataArray[10];
 uint32_t volatile *FlashPtr = (uint32_t volatile*)FLASH;
 int SuccessfulWrites;
+
 int main(void){
-  uint32_t errors;
-  int i;
-  PLL_Init(Bus80MHz);                               // set system clock to 80 MHz
-  UART_Init();                                      // initialize UART
-  SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R5;          // activate clock for Port F
-  while((SYSCTL_PRGPIO_R&SYSCTL_PRGPIO_R5) == 0){}; // allow time for clock to stabilize
-  GPIO_PORTF_DIR_R |= 0x0E;                         // make PF3-1 out (PF3-1 built-in LEDs)
-  GPIO_PORTF_AFSEL_R &= ~0x0E;                      // disable alt funct on PF3-1
-  GPIO_PORTF_DEN_R |= 0x0E;                         // enable digital I/O on PF3-1
-                                                    // configure PF3-1 as GPIO
-  GPIO_PORTF_PCTL_R = (GPIO_PORTF_PCTL_R&0xFFFF000F)+0x00000000;
-  GPIO_PORTF_AMSEL_R &= ~0x0E;                      // disable analog functionality on PF3-1
-  DataArray[0] = 0x00001111;
-  DataArray[1] = 0x00022220;
-  DataArray[2] = 0x00333300;
-  DataArray[3] = 0x04444000;
-  DataArray[4] = 0x55550000;
-  DataArray[5] = 0x66600007;
-  DataArray[6] = 0x77000088;
-  DataArray[7] = 0x80000999;
-  DataArray[8] = 0x0000AAAA;
-  DataArray[9] = 0x000BBBB0;
-  Flash_Erase(FLASH);                               // erase 0x00008000 through 0x000083FC
-  Flash_Write(FLASH + 0, 0x10101010);               // write to location 0x00008000
-  Flash_Write(FLASH + 4, 0x0BADBEEF);               // write to location 0x00008004
-  Flash_Write(FLASH + 8, 0xBEEFF00D);               // write to location 0x00008008
-  Flash_Write(FLASH + 0x400, 0x45464153);           // write to location 0x00008400; this value should persist after this program is run (see note at bottom of file)
-  Flash_Write(FLASH + 0x3FC, 0x454E4F47);           // write to location 0x000083FC
-  Flash_Write(FLASH + 0x3F8, 0x0FEDCBA0);           // write to location 0x000083F8
-  GPIO_PORTF321 = 0x00;                             // red LED off; blue LED off; green LED off
-  SuccessfulWrites = Flash_WriteArray(DataArray, FLASH + 9, 10); // invalid address
-  GPIO_PORTF321 = 0x04;                             // red LED off; blue LED on; green LED off
-  SuccessfulWrites = Flash_WriteArray(DataArray, FLASH + 12, 10);// use scope to measure PF2 high time (678 usec)
-  GPIO_PORTF321 = 0x00;                             // red LED off; blue LED off; green LED off
-  SuccessfulWrites = Flash_FastWrite(DataArray, FLASH + 124, 10); // invalid address
-  GPIO_PORTF321 = 0x02;                             // red LED on; blue LED off; green LED off
-  SuccessfulWrites = Flash_FastWrite(DataArray, FLASH + 128, 10); // use scope to measure PF1 high time (335 usec)
-  GPIO_PORTF321 = 0x00;                             // red LED off; blue LED off; green LED off
-  // memory test
-  errors = 0;
-  UART_OutString("\r\n");
-  if(FlashPtr[0] != 0x10101010){
-    UART_OutString("Error at 0x");
-    UART_OutUHex(FLASH + 0);
-    UART_OutString(": expected 0x10101010 but actually 0x");
-    UART_OutUHex(FlashPtr[0]);
-    UART_OutString(".\r\n");
-    errors = errors + 1;
-  }
-  if(FlashPtr[1] != 0x0BADBEEF){
-    UART_OutString("Error at 0x");
-    UART_OutUHex(FLASH + 4);
-    UART_OutString(": expected 0x0BADBEEF but actually 0x");
-    UART_OutUHex(FlashPtr[1]);
-    UART_OutString(".\r\n");
-    errors = errors + 1;
-  }
-  if(FlashPtr[2] != 0xBEEFF00D){
-    UART_OutString("Error at 0x");
-    UART_OutUHex(FLASH + 8);
-    UART_OutString(": expected 0xBEEFF00D but actually 0x");
-    UART_OutUHex(FlashPtr[2]);
-    UART_OutString(".\r\n");
-    errors = errors + 1;
-  }
-  for(i=0; i<10; i=i+1){
-    if(FlashPtr[i+3] != DataArray[i]){
-      UART_OutString("Error at 0x");
-      UART_OutUHex(FLASH + 12 + 4*i);
-      UART_OutString(": expected 0x");
-      UART_OutUHex(DataArray[i]);
-      UART_OutString(" but actually 0x");
-      UART_OutUHex(FlashPtr[i+3]);
-      UART_OutString(".\r\n");
-      errors = errors + 1;
-    }
-  }
-  for(i=0; i<10; i=i+1){
-    if(FlashPtr[i+32] != DataArray[i]){
-      UART_OutString("Error at 0x");
-      UART_OutUHex(FLASH + 128 + 4*i);
-      UART_OutString(": expected 0x");
-      UART_OutUHex(DataArray[i]);
-      UART_OutString(" but actually 0x");
-      UART_OutUHex(FlashPtr[i+32]);
-      UART_OutString(".\r\n");
-      errors = errors + 1;
-    }
-  }
-  if(FlashPtr[254] != 0x0FEDCBA0){
-    UART_OutString("Error at 0x");
-    UART_OutUHex(FLASH + 0x3F8);
-    UART_OutString(": expected 0x0FEDCBA0 but actually 0x");
-    UART_OutUHex(FlashPtr[4094]);
-    UART_OutString(".\r\n");
-    errors = errors + 1;
-  }
-  if(FlashPtr[255] != 0x454E4F47){
-    UART_OutString("Error at 0x");
-    UART_OutUHex(FLASH + 0x3FC);
-    UART_OutString(": expected 0x454E4F47 but actually 0x");
-    UART_OutUHex(FlashPtr[4095]);
-    UART_OutString(".\r\n");
-    errors = errors + 1;
-  }
-  UART_OutString("Memory test complete.  ");
-  UART_OutUDec(errors);
-  UART_OutString(" errors.\r\n\r\n");
-  // scoreboard test
-  Scoreboard_Init(SCOREBOARD);
-  GPIO_PORTF321 = 0x04;                             // red LED off; blue LED on; green LED off
-/*  for(i=LTTSTART; i<LTTEND; i=i+1024){
-    Flash_Erase(i);                                 // clear the flash so long term tests start at 0 errors; otherwise the first run will report errors since flash already contains data
-  }*/
-  while(1){
-    printscores();
-    getnewscore();
-//    longtermtest();
-    GPIO_PORTF321 ^= 0x0E;                          // toggle LEDs between blue and yellow
-  }
+  PLL_Init(Bus80MHz);
+  Test1();
 }
 
 // Note on writing to location 0x00008400:

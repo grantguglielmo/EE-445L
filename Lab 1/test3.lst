@@ -1,0 +1,105 @@
+
+
+
+ARM Macro Assembler    Page 1 
+
+
+    1 00000000                 EXPORT           Test4
+    2 00000000                 AREA             DATA, ALIGN=2
+    3 00000000 00 00 00 
+              00       T       SPACE            4
+    4 00000004 00 00 00 
+              00       N       SPACE            4
+    5 00000008                 AREA             |.text|, CODE, READONLY, ALIGN=
+2
+    6 00000000                 THUMB
+    7 00000000 B570    Test4   PUSH             {R4,R5,R6,LR}
+    8 00000002 F04F 0000       MOV              R0,#0
+    9 00000006 490B            LDR              R1,=N       ;pointer to N
+   10 00000008 4A0B            LDR              R2,=T       ;pointer to T
+   11 0000000A F04F 037D       MOV              R3,#125
+   12 0000000E F04F 0440       MOV              R4,#64
+   13 00000012 F44F 757A       MOV              R5,#1000
+   14 00000016 6008    loop4   STR              R0,[R1]     ; N is volatile
+   15 00000018 FB00 F603       MUL              R6,R0,R3    ; N*125
+   16 0000001C 4426            ADD              R6,R6,R4    ; N*125+64
+   17 0000001E EA4F 16D6       LSR              R6,R6,#7    ; (N*125+64)/128
+   18 00000022 442E            ADD              R6,R6,R5    ; 1000+(N*125+64)/1
+                                                            28
+   19 00000024 6016            STR              R6,[R2]     ; T = 1000+(N*125+6
+                                                            4)/128
+   20 00000026 F100 0001       ADD              R0,R0,#1
+   21 0000002A F5B0 5F80       CMP              R0,#4096
+   22 0000002E D1F2            BNE              loop4
+   23 00000030 BD70            POP              {R4,R5,R6,PC}
+   24 00000032 00 00           ALIGN
+   25 00000034                 END
+              00000000 
+              00000000 
+Command Line: --debug --xref --cpu=Cortex-M4.fp --apcs=interwork --depend=.\tes
+t3.d -o.\test3.o -IC:\Keil\ARM\RV31\INC -IC:\Keil\ARM\CMSIS\Include -IC:\Keil\A
+RM\Inc\Luminary --predefine="__EVAL SETA 1" --predefine="__MICROLIB SETA 1" --l
+ist=.\test3.lst test3.s
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+DATA 00000000
+
+Symbol: DATA
+   Definitions
+      At line 2 in file test3.s
+   Uses
+      None
+Comment: DATA unused
+N 00000004
+
+Symbol: N
+   Definitions
+      At line 4 in file test3.s
+   Uses
+      At line 9 in file test3.s
+Comment: N used once
+T 00000000
+
+Symbol: T
+   Definitions
+      At line 3 in file test3.s
+   Uses
+      At line 10 in file test3.s
+Comment: T used once
+3 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+.text 00000000
+
+Symbol: .text
+   Definitions
+      At line 5 in file test3.s
+   Uses
+      None
+Comment: .text unused
+Test4 00000000
+
+Symbol: Test4
+   Definitions
+      At line 7 in file test3.s
+   Uses
+      At line 1 in file test3.s
+Comment: Test4 used once
+loop4 00000016
+
+Symbol: loop4
+   Definitions
+      At line 14 in file test3.s
+   Uses
+      At line 22 in file test3.s
+Comment: loop4 used once
+3 symbols
+341 symbols in table

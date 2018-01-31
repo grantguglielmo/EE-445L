@@ -38,7 +38,13 @@ long StartCritical (void);    // previous I bit, disable interrupts
 void EndCritical(long sr);    // restore I bit to previous value
 void WaitForInterrupt(void);  // low power mode
 
+int Time[1000];
+int Adc[1000];
+int I = 0;
+
 volatile uint32_t ADCvalue;
+volatile uint32_t TIMEvalue0;
+volatile uint32_t TIMEvalue1;
 // This debug function initializes Timer0A to request interrupts
 // at a 100 Hz frequency.  It is similar to FreqMeasure.c.
 void Timer0A_Init100HzInt(void){
@@ -65,9 +71,38 @@ void Timer0A_Handler(void){
   TIMER0_ICR_R = TIMER_ICR_TATOCINT;    // acknowledge timer0A timeout
   PF2 ^= 0x04;                   // profile
   PF2 ^= 0x04;                   // profile
-  ADCvalue = ADC0_InSeq3();
+  if(I < 1000){
+    ADCvalue = ADC0_InSeq3();
+    TIMEvalue0 = TIMER1_TAR_R;
+    TIMEvalue1 = TIMER1_TAR_R;
+    Time[I] = TIMEvalue0 - TIMEvalue1;
+    Adc[I] = ADCvalue;
+    I++;
+  }
   PF2 ^= 0x04;                   // profile
 }
+
+void Timer1_Init(){
+  SYSCTL_RCGCTIMER_R |= 0x02;   // 0) activate TIMER1
+  TIMER1_CTL_R = 0x00000000;    // 1) disable TIMER1A during setup
+  TIMER1_CFG_R = 0x00000000;    // 2) configure for 32-bit mode
+  TIMER1_TAMR_R = 0x00000002;   // 3) configure for periodic mode, default down-count settings
+  TIMER1_TAILR_R = 0xFFFFFFFF;    // 4) reload value
+  TIMER1_TAPR_R = 0;            // 5) bus clock resolution
+  TIMER1_ICR_R = 0x00000001;    // 6) clear TIMER1A timeout flag
+  NVIC_PRI5_R = (NVIC_PRI5_R&0xFFFF00FF)|0x00008000; // 8) priority 4
+// interrupts enabled in the main program after all devices initialized
+// vector number 37, interrupt number 21
+  NVIC_EN0_R = 1<<21;           // 9) enable IRQ 21 in NVIC
+  TIMER1_CTL_R = 0x00000001;    // 10) enable TIMER1A
+}
+
+void Timer1A_Handler(void){
+  TIMER1_ICR_R = TIMER_ICR_TATOCINT;// acknowledge TIMER1A timeout
+}
+
+int Jitter[999];
+
 int main(void){
   PLL_Init(Bus80MHz);                   // 80 MHz
   SYSCTL_RCGCGPIO_R |= 0x20;            // activate port F
@@ -80,9 +115,26 @@ int main(void){
   GPIO_PORTF_PCTL_R = (GPIO_PORTF_PCTL_R&0xFFFFF00F)+0x00000000;
   GPIO_PORTF_AMSEL_R = 0;               // disable analog functionality on PF
   PF2 = 0;                      // turn off LED
+  Timer1_Init();
   EnableInterrupts();
+  int min = 0;
+  int max = 0;
+  int jitter;
   while(1){
     PF1 ^= 0x02;  // toggles when running in main
+    if(I == 1000){
+      min = Time[1] - Time[0];
+      max = min;
+      for(int j = 0; j < 999; j++){
+        Jitter[j] = Time[j+1] - Time[j];
+        if(Jitter[j] < min)
+          min = Jitter[j];
+        if(Jitter[j] > max)
+          max = Jitter[j];
+      }
+      jitter = max - min;
+      I++;
+    }
   }
 }
 
