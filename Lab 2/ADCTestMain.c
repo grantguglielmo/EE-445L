@@ -37,6 +37,7 @@
 
 #define PF2             (*((volatile uint32_t *)0x40025010))
 #define PF1             (*((volatile uint32_t *)0x40025008))
+#define ADC             (*((volatile uint32_t *)0x40038000))
 void DisableInterrupts(void); // Disable interrupts
 void EnableInterrupts(void);  // Enable interrupts
 long StartCritical (void);    // previous I bit, disable interrupts
@@ -77,7 +78,8 @@ void Timer0A_Handler(void){
   TIMER0_ICR_R = TIMER_ICR_TATOCINT;                // acknowledge timer0A timeout
   PF2 ^= 0x04;                                      // profile
   PF2 ^= 0x04;                                      // profile
-  if(I < 1000){                                     // this loop will fill the ADC and Time arrays until Timer0 has interrupted 1000 times
+  ADCvalue = ADC0_InSeq3();
+  if(I > 1000){                                     // this loop will fill the ADC and Time arrays until Timer0 has interrupted 1000 times
     ADCvalue = ADC0_InSeq3();
     TIMEvalue0 = TIMER1_TAR_R;
     TIMEvalue1 = TIMER1_TAR_R;
@@ -179,6 +181,7 @@ int main(void){
   GPIO_PORTF_AMSEL_R = 0;                                         // disable analog functionality on PF
   PF2 = 0;                                                        // turn off LED
   Timer1_Init();
+  ADC = 2;
   EnableInterrupts();
   int min = 0;                                                    // initializing the min variable where we will store the current min jitter
   int max = 0;                                                    // initializing the max variable where we will store the current max jitter
