@@ -37,7 +37,8 @@
 
 #define PF2             (*((volatile uint32_t *)0x40025010))
 #define PF1             (*((volatile uint32_t *)0x40025008))
-#define ADC             (*((volatile uint32_t *)0x40038000))
+#define ADC             (*((volatile uint32_t *)0x40038030))
+#define ADCCTR          (*((volatile uint32_t *)0x40038038))
 void DisableInterrupts(void); // Disable interrupts
 void EnableInterrupts(void);  // Enable interrupts
 long StartCritical (void);    // previous I bit, disable interrupts
@@ -79,8 +80,8 @@ void Timer0A_Handler(void){
   PF2 ^= 0x04;                                      // profile
   PF2 ^= 0x04;                                      // profile
   ADCvalue = ADC0_InSeq3();
-  if(I > 1000){                                     // this loop will fill the ADC and Time arrays until Timer0 has interrupted 1000 times
-    ADCvalue = ADC0_InSeq3();
+  if(I < 1000){                                     // this loop will fill the ADC and Time arrays until Timer0 has interrupted 1000 times
+    //ADCvalue = ADC0_InSeq3();
     TIMEvalue0 = TIMER1_TAR_R;
     TIMEvalue1 = TIMER1_TAR_R;
     Time[I] = TIMEvalue0 - TIMEvalue1;              // setting Time array value
@@ -181,14 +182,37 @@ int main(void){
   GPIO_PORTF_AMSEL_R = 0;                                         // disable analog functionality on PF
   PF2 = 0;                                                        // turn off LED
   Timer1_Init();
-  ADC = 2;
+  //ADCCTR = 0x40;
+  //ADC = 0x6;
   EnableInterrupts();
   int min = 0;                                                    // initializing the min variable where we will store the current min jitter
   int max = 0;                                                    // initializing the max variable where we will store the current max jitter
   int jitter;                                                     // variable for storing the final jitter value
+  ST7735_Line(50, 160 - 50, 40, 160 - 100, ST7735_MAGENTA);
+  
+  ST7735_Line(50, 160 - 50, 20, 160 - 80, ST7735_MAGENTA);
+  ST7735_Line(50, 160 - 50, 0, 160 - 60, ST7735_MAGENTA);
+  ST7735_Line(50, 160 - 50, 0, 160 - 50, ST7735_MAGENTA);
+  
+  ST7735_Line(50, 160 - 50, 50, 160 - 0, ST7735_MAGENTA);
+  ST7735_Line(50, 160 - 50, 50, 160 - 120, ST7735_MAGENTA);
+  
+  ST7735_Line(50, 160 - 50, 60, 160 - 100, ST7735_MAGENTA);
+  ST7735_Line(50, 160 - 50, 80, 160 - 80, ST7735_MAGENTA);
+  ST7735_Line(50, 160 - 50, 100, 160 - 60, ST7735_MAGENTA);
+  
+  ST7735_Line(50, 160 - 50, 100, 160 - 50, ST7735_MAGENTA);
+  
+  ST7735_Line(50, 160 - 50, 20, 160 - 20, ST7735_MAGENTA);
+  ST7735_Line(50, 160 - 50, 0, 160 - 40, ST7735_MAGENTA);
+  ST7735_Line(50, 160 - 50, 40, 160 - 0, ST7735_MAGENTA);
+  
+  ST7735_Line(50, 160 - 50, 60, 160 - 0, ST7735_MAGENTA);
+  ST7735_Line(50, 160 - 50, 80, 160 - 20, ST7735_MAGENTA);
+  ST7735_Line(50, 160 - 50, 100, 160 - 40, ST7735_MAGENTA);
   while(1){
     PF1 ^= 0x02;                                                  // toggles when running in main
-    if(I == 1000){                                                // (A)  
+    /*if(I == 1000){                                                // (A)  
       min = Time[1] - Time[0];                                    
       max = min;                                                  // the max will be equal to the first min
       for(int j = 0; j < 999; j++){
@@ -204,7 +228,7 @@ int main(void){
       I++;                                                        // incrementing I so that if statement A is only executed once
       
       PMFplot();                                                  // PMF plot will plot all the ADC values and create a PMF
-    }
+    }*/
   }
 }
 
