@@ -170,13 +170,14 @@ int main(void){
   GPIO_PORTF_PCTL_R = (GPIO_PORTF_PCTL_R&0xFFFFF00F)+0x00000000;
   GPIO_PORTF_AMSEL_R = 0;                                         // disable analog functionality on PF
   PF2 = 0;                                                        // turn off LED
-  //Switch_Init();                                                  // PA2-5
+  Switch_Init();                                                  // PE2-5
   
   int16_t menu = 1;   //1: main menu, 2: digital clk, 3: analog clk, 4: set alarm, 5: set clock
   //int16_t rtn = 5;
   EnableInterrupts();
   
   Draw_Menu();
+  Refresh_Anlgclk();
   while(1){
     switch(menu){
       case 1:
