@@ -1,3 +1,14 @@
+/* ** AnalogClock.c **
+* Grant Guglielmo, Malek Al Sukhni
+* Created: 1/20/18
+* Contains the code for printing the analog clock to the lcd screen. Decides where to print second, minute, and hour
+* hands on the analog clock based on the current time, as well as previous hand locations
+* Lab 3
+* Jamie Campos
+* Last modified: 2/13/18
+* outputs to ST7735 LCD screen connected to pins: PA2, PA3, PA5, PA6, PA7, 3.3 V and GND
+*/
+
 #include "AnalogClock.h"
 #include "ST7735.h"
 
@@ -479,14 +490,5 @@ void Refresh_Anlgclk(void){
   ST7735_SetCursor(17, 8);
   ST7735_OutChar('a' + meridiem);
   ST7735_OutChar('m');
-  
-  /*ST7735_SetCursor(0, 0);
-  ST7735_OutChar(hrs/10 + '0');
-  ST7735_OutChar(hrs%10 + '0');
-  ST7735_OutChar(':');
-  ST7735_OutChar(mins/10 + '0');
-  ST7735_OutChar(mins%10 + '0');
-  ST7735_OutChar('a' + meridiem);
-  ST7735_OutChar('m');*/
 }
 
