@@ -1,41 +1,49 @@
 Dependencies for Project 'Lab 3', Target 'ADCSWTrigger': (DO NOT MODIFY !)
 F (.\startup.s)(0x5A70E229)(--cpu Cortex-M4 --pd "__EVAL SETA 1" -g --apcs=interwork -I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\Luminary--list .\startup.lst --xref -o .\startup.o --depend .\startup.d)
-F (.\ADCTestMain.c)(0x5A7BC49C)(-c --cpu Cortex-M4 -D__EVAL -g -O0 --apcs=interwork --split_sections --signed_chars -I.. -I..\..\.. --c99-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\Luminary-Drvmdk -DPART_LM4F120H5QR-o .\adctestmain.o --omf_browse .\adctestmain.crf --depend .\adctestmain.d)
+F (.\ADCTestMain.c)(0x5A822E42)(-c --cpu Cortex-M4 -D__EVAL -g -O0 --apcs=interwork --split_sections --signed_chars -I.. -I..\..\.. --c99-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\Luminary-Drvmdk -DPART_LM4F120H5QR-o .\adctestmain.o --omf_browse .\adctestmain.crf --depend .\adctestmain.d)
 I (C:\Keil\ARM\ARMCC\include\stdint.h)(0x51C87C24)
 I (ADCTestMain.h)(0x5A7B6AF0)
-I (ST7735.h)(0x5A7117AD)
+I (ST7735.h)(0x5A7CC6CD)
 I (../inc/tm4c123gh6pm.h)(0x5388B4CA)
 I (PLL.h)(0x5A70E229)
 I (Menu.h)(0x5A7BA597)
 I (DigitalClock.h)(0x5A7B941F)
-I (AnalogClock.h)(0x5A7B9426)
-I (SetAlarm.h)(0x5A7B9431)
-I (SetClock.h)(0x5A7BA731)
+I (AnalogClock.h)(0x5A7CB221)
+I (SetAlarm.h)(0x5A7CE6E1)
+I (SetClock.h)(0x5A7CD0D0)
 F (.\PLL.c)(0x5A70E229)(-c --cpu Cortex-M4 -D__EVAL -g -O0 --apcs=interwork --split_sections --signed_chars -I.. -I..\..\.. --c99-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\Luminary-Drvmdk -DPART_LM4F120H5QR-o .\pll.o --omf_browse .\pll.crf --depend .\pll.d)
 I (C:\Keil\ARM\ARMCC\include\stdint.h)(0x51C87C24)
 I (PLL.h)(0x5A70E229)
 I (../inc/tm4c123gh6pm.h)(0x5388B4CA)
-F (.\AnalogClock.c)(0x5A7BC4D8)(-c --cpu Cortex-M4 -D__EVAL -g -O0 --apcs=interwork --split_sections --signed_chars -I.. -I..\..\.. --c99-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\Luminary-Drvmdk -DPART_LM4F120H5QR-o .\analogclock.o --omf_browse .\analogclock.crf --depend .\analogclock.d)
-I (AnalogClock.h)(0x5A7B9426)
+F (.\AnalogClock.c)(0x5A7CCFE2)(-c --cpu Cortex-M4 -D__EVAL -g -O0 --apcs=interwork --split_sections --signed_chars -I.. -I..\..\.. --c99-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\Luminary-Drvmdk -DPART_LM4F120H5QR-o .\analogclock.o --omf_browse .\analogclock.crf --depend .\analogclock.d)
+I (AnalogClock.h)(0x5A7CB221)
 I (C:\Keil\ARM\ARMCC\include\stdint.h)(0x51C87C24)
-I (ST7735.h)(0x5A7117AD)
-F (.\DigitalClock.c)(0x5A7B9423)(-c --cpu Cortex-M4 -D__EVAL -g -O0 --apcs=interwork --split_sections --signed_chars -I.. -I..\..\.. --c99-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\Luminary-Drvmdk -DPART_LM4F120H5QR-o .\digitalclock.o --omf_browse .\digitalclock.crf --depend .\digitalclock.d)
+I (ST7735.h)(0x5A7CC6CD)
+F (.\DigitalClock.c)(0x5A7CAEF6)(-c --cpu Cortex-M4 -D__EVAL -g -O0 --apcs=interwork --split_sections --signed_chars -I.. -I..\..\.. --c99-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\Luminary-Drvmdk -DPART_LM4F120H5QR-o .\digitalclock.o --omf_browse .\digitalclock.crf --depend .\digitalclock.d)
 I (DigitalClock.h)(0x5A7B941F)
 I (C:\Keil\ARM\ARMCC\include\stdint.h)(0x51C87C24)
-F (.\Menu.c)(0x5A7BC313)(-c --cpu Cortex-M4 -D__EVAL -g -O0 --apcs=interwork --split_sections --signed_chars -I.. -I..\..\.. --c99-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\Luminary-Drvmdk -DPART_LM4F120H5QR-o .\menu.o --omf_browse .\menu.crf --depend .\menu.d)
+I (ST7735.h)(0x5A7CC6CD)
+F (.\Menu.c)(0x5A823122)(-c --cpu Cortex-M4 -D__EVAL -g -O0 --apcs=interwork --split_sections --signed_chars -I.. -I..\..\.. --c99-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\Luminary-Drvmdk -DPART_LM4F120H5QR-o .\menu.o --omf_browse .\menu.crf --depend .\menu.d)
 I (Menu.h)(0x5A7BA597)
 I (C:\Keil\ARM\ARMCC\include\stdint.h)(0x51C87C24)
 I (ADCTestMain.h)(0x5A7B6AF0)
-I (ST7735.h)(0x5A7117AD)
-F (.\SetAlarm.c)(0x5A7B942D)(-c --cpu Cortex-M4 -D__EVAL -g -O0 --apcs=interwork --split_sections --signed_chars -I.. -I..\..\.. --c99-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\Luminary-Drvmdk -DPART_LM4F120H5QR-o .\setalarm.o --omf_browse .\setalarm.crf --depend .\setalarm.d)
-I (SetAlarm.h)(0x5A7B9431)
+I (ST7735.h)(0x5A7CC6CD)
+I (AnalogClock.h)(0x5A7CB221)
+I (DigitalClock.h)(0x5A7B941F)
+I (SetClock.h)(0x5A7CD0D0)
+I (SetAlarm.h)(0x5A7CE6E1)
+F (.\SetAlarm.c)(0x5A82303E)(-c --cpu Cortex-M4 -D__EVAL -g -O0 --apcs=interwork --split_sections --signed_chars -I.. -I..\..\.. --c99-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\Luminary-Drvmdk -DPART_LM4F120H5QR-o .\setalarm.o --omf_browse .\setalarm.crf --depend .\setalarm.d)
+I (SetAlarm.h)(0x5A7CE6E1)
 I (C:\Keil\ARM\ARMCC\include\stdint.h)(0x51C87C24)
-F (.\ST7735.c)(0x5A7A220C)(-c --cpu Cortex-M4 -D__EVAL -g -O0 --apcs=interwork --split_sections --signed_chars -I.. -I..\..\.. --c99-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\Luminary-Drvmdk -DPART_LM4F120H5QR-o .\st7735.o --omf_browse .\st7735.crf --depend .\st7735.d)
+I (ST7735.h)(0x5A7CC6CD)
+I (Menu.h)(0x5A7BA597)
+F (.\SetClock.c)(0x5A7FA651)(-c --cpu Cortex-M4 -D__EVAL -g -O0 --apcs=interwork --split_sections --signed_chars -I.. -I..\..\.. --c99-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\Luminary-Drvmdk -DPART_LM4F120H5QR-o .\setclock.o --omf_browse .\setclock.crf --depend .\setclock.d)
+I (SetClock.h)(0x5A7CD0D0)
+I (C:\Keil\ARM\ARMCC\include\stdint.h)(0x51C87C24)
+I (ST7735.h)(0x5A7CC6CD)
+I (Menu.h)(0x5A7BA597)
+F (.\ST7735.c)(0x5A7CC721)(-c --cpu Cortex-M4 -D__EVAL -g -O0 --apcs=interwork --split_sections --signed_chars -I.. -I..\..\.. --c99-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\Luminary-Drvmdk -DPART_LM4F120H5QR-o .\st7735.o --omf_browse .\st7735.crf --depend .\st7735.d)
 I (C:\Keil\ARM\ARMCC\include\stdio.h)(0x51C87C24)
 I (C:\Keil\ARM\ARMCC\include\stdint.h)(0x51C87C24)
-I (ST7735.h)(0x5A7117AD)
+I (ST7735.h)(0x5A7CC6CD)
 I (../inc/tm4c123gh6pm.h)(0x5388B4CA)
-F (.\SetClock.h)(0x5A7BA731)()
-F (.\SetClock.c)(0x5A7BA75C)(-c --cpu Cortex-M4 -D__EVAL -g -O0 --apcs=interwork --split_sections --signed_chars -I.. -I..\..\.. --c99-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\Luminary-Drvmdk -DPART_LM4F120H5QR-o .\setclock.o --omf_browse .\setclock.crf --depend .\setclock.d)
-I (SetClock.h)(0x5A7BA731)
-I (C:\Keil\ARM\ARMCC\include\stdint.h)(0x51C87C24)

@@ -40,6 +40,8 @@
 #include "SetAlarm.h"
 #include "SetClock.h"
 
+#define PE2             (*((volatile uint32_t *)0x40024010))
+#define PE1             (*((volatile uint32_t *)0x40024008))
 #define PF2             (*((volatile uint32_t *)0x40025010))
 #define PF1             (*((volatile uint32_t *)0x40025008))
 void DisableInterrupts(void); // Disable interrupts
@@ -48,11 +50,19 @@ long StartCritical (void);    // previous I bit, disable interrupts
 void EndCritical(long sr);    // restore I bit to previous value
 void WaitForInterrupt(void);  // low power mode
 
+extern volatile uint32_t AlarmTime;
+
 volatile uint32_t TimeSecs;
-volatile uint16_t SW0;
 volatile uint16_t SW1;
 volatile uint16_t SW2;
 volatile uint16_t SW3;
+volatile uint32_t Debounce;
+volatile uint16_t AlarmOn;
+volatile uint16_t TimeOut;
+
+int16_t flash = 0;
+int16_t alarmSound = 0;
+int16_t Menu = 1;   //1: main menu, 2: digital clk, 3: analog clk, 4: set alarm, 5: set clock
 
 // This debug function initializes Timer0A to request interrupts
 // at a 100 Hz frequency.  It is similar to FreqMeasure.c.
@@ -79,6 +89,18 @@ void Timer0A_Init100HzInt(void){
 void Timer0A_Handler(void){
   TIMER0_ICR_R = TIMER_ICR_TATOCINT;                // acknowledge timer0A timeout      
   TimeSecs = (TimeSecs + 1)%86400;
+  if(AlarmOn && (AlarmTime == TimeSecs)){
+    alarmSound = 1;
+  }
+  if(alarmSound){
+    PF2 = 0;
+  }
+  else{
+    PF2 ^= 0x04;
+  }
+  if(TimeOut > 1){
+    TimeOut--;
+  }
 }
 
 void Timer1_Init(){
@@ -105,42 +127,64 @@ void Timer1A_Handler(void){
 
 void Switch_Init(void){ volatile unsigned long delay;
   SYSCTL_RCGCGPIO_R |= 0x00000010; // activate port E
-  SW0 = 0;
   SW1 = 0;                    // clear semaphores
   SW2 = 0;
   SW3 = 0;
-  GPIO_PORTE_AMSEL_R &= ~0x3C;// disable analog function on PE5-2
-  GPIO_PORTE_PCTL_R &= ~0x00FFFF00; // configure PE5-2 as GPIO 
-  GPIO_PORTE_DIR_R &= ~0x3C;  // make PE5-2 in 
-  GPIO_PORTE_AFSEL_R &= ~0x3C;// disable alt funct on PE5-2 
-  GPIO_PORTE_DEN_R |= 0x3C;   // enable digital I/O on PE5-2
-  GPIO_PORTE_IS_R &= ~0x3C;   // PE5-2 is edge-sensitive 
-  GPIO_PORTE_IBE_R &= ~0x3C;  // PE5-2 is not both edges 
-  GPIO_PORTE_IEV_R |= 0x3C;   // PE5-2 rising edge event
-  GPIO_PORTE_ICR_R = 0x3C;    // clear flag5-2
-  GPIO_PORTE_IM_R |= 0x3C;    // enable interrupt on PE5-2
+  GPIO_PORTE_AMSEL_R = ~0x3E;// disable analog function on PE5-2
+  GPIO_PORTE_PCTL_R = ~0x00FFFFF0; // configure PE5-2 as GPIO 
+  GPIO_PORTE_DIR_R = ~0x38;  // make PE5-2 in 
+  GPIO_PORTE_AFSEL_R &= ~0x3E;// disable alt funct on PE5-2 
+  GPIO_PORTE_DEN_R |= 0x3E;   // enable digital I/O on PE5-2
+  GPIO_PORTE_IS_R &= ~0x38;   // PE5-2 is edge-sensitive 
+  GPIO_PORTE_IBE_R &= ~0x38;  // PE5-2 is not both edges 
+  GPIO_PORTE_IEV_R |= 0x38;   // PE5-2 rising edge event
+  GPIO_PORTE_ICR_R = 0x38;    // clear flag5-2
+  GPIO_PORTE_IM_R |= 0x38;    // enable interrupt on PE5-2
                               // GPIO PortE=priority 2
   NVIC_PRI1_R = (NVIC_PRI1_R&0xFFFFFF00)|0x00000040; // bits 5-7
   NVIC_EN0_R = 0x00000010; // enable interrupt 4 in NVIC
 }
 
 void GPIOPortE_Handler(void){
-  if(GPIO_PORTE_RIS_R&0x04){  // poll PE2
-    GPIO_PORTE_ICR_R = 0x04;  // acknowledge flag2
-    SW0 = 1;                  // signal SW0 occurred
-  }
   if(GPIO_PORTE_RIS_R&0x08){  // poll PE3
     GPIO_PORTE_ICR_R = 0x08;  // acknowledge flag3
+    if(alarmSound){
+      alarmSound = 0;
+      Debounce = 15;
+      AlarmTime = (TimeSecs + 60)%86400;
+      return;
+    }
+    if(Debounce){
+      return;
+    }
     SW1 = 1;                  // signal SW1 occurred
   }
   if(GPIO_PORTE_RIS_R&0x10){  // poll PE4
     GPIO_PORTE_ICR_R = 0x10;  // acknowledge flag4
+    if(alarmSound){
+      alarmSound = 0;
+      Debounce = 15;
+      AlarmTime = (TimeSecs + 60)%86400;
+      return;
+    }
+    if(Debounce){
+      return;
+    }
     SW2 = 1;                  // signal SW2 occurred
   }
   if(GPIO_PORTE_RIS_R&0x20){  // poll PE5
     GPIO_PORTE_ICR_R = 0x20;  // acknowledge flag5
+    if(alarmSound){
+      alarmSound = 0;
+      Debounce = 15;
+      return;
+    }
+    if(Debounce){
+      return;
+    }
     SW3 = 1;                  // signal SW3 occurred
   }
+  Debounce = 30;
 }
 
 void SysTick_Init(unsigned long period){
@@ -170,16 +214,42 @@ int main(void){
   GPIO_PORTF_PCTL_R = (GPIO_PORTF_PCTL_R&0xFFFFF00F)+0x00000000;
   GPIO_PORTF_AMSEL_R = 0;                                         // disable analog functionality on PF
   PF2 = 0;                                                        // turn off LED
+  PF1 = 0;
   Switch_Init();                                                  // PE2-5
   
-  int16_t menu = 1;   //1: main menu, 2: digital clk, 3: analog clk, 4: set alarm, 5: set clock
+  
+  AlarmOn = 0;
+  Debounce = 0;
+  TimeOut = 0;
+  
   //int16_t rtn = 5;
   EnableInterrupts();
-  
+  //PE1 = 0x1;
   Draw_Menu();
-  Refresh_Anlgclk();
   while(1){
-    switch(menu){
+    if(Debounce){
+      Debounce--;
+    }
+    if(alarmSound){
+      if(!flash){
+        PF1 ^= 0x02;
+        flash = 10;
+      }
+      else{
+        flash--;
+      }
+      PE2 ^= 0x04;
+    }
+    else{
+      PF1 = 0;
+    }
+    if(TimeOut == 1){
+      TimeOut--;
+      Menu = 1;
+      Output_Clear();
+      Draw_Menu();
+    }
+    switch(Menu){
       case 1:
         Refresh_Menu();
         break;

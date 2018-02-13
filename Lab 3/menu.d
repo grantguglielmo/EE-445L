@@ -3,3 +3,7 @@
 .\menu.o: C:\Keil\ARM\ARMCC\bin\..\include\stdint.h
 .\menu.o: ADCTestMain.h
 .\menu.o: ST7735.h
+.\menu.o: AnalogClock.h
+.\menu.o: DigitalClock.h
+.\menu.o: SetClock.h
+.\menu.o: SetAlarm.h
