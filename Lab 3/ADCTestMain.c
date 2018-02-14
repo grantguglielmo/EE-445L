@@ -1,30 +1,14 @@
 /* ** ADCTestMain.c **
 * Grant Guglielmo, Malek Al Sukhni
 * Created: 1/20/18
-* Initializes timers 0 and 1 and keeps track of ADC values when an interrupt occurs (every 12.5 ns). 
-* it then takes these values and constructs a PMF and plots it to the ST7735. Built off of files from
-* projects ADCSWTrigger_4C123 and PeriodicTimer1AInts_4C123. 
-* Lab 2
+* Initializes timers 0 and 1, with timer 0 being used for speaker and timer 1 being used for every second increase. 
+* This class also contains the main code for the lab, deciding what display should be used based on button presses.
+* Lab 3
 * Jamie Campos
-* Last modified: 1/31/18
+* Last modified: 2/13/18
 * outputs to ST7735 LCD screen connected to pins: PA2, PA3, PA5, PA6, PA7, 3.3 V and GND
+* also outputs to pins PF1 (alarm light), PF2 (heartbeat), PE2 (speaker), PE3 PE4 PE5 (buttons)
 */
-
-/* This example accompanies the book
-   "Embedded Systems: Real Time Interfacing to Arm Cortex M Microcontrollers",
-   ISBN: 978-1463590154, Jonathan Valvano, copyright (c) 2015
-
- Copyright 2015 by Jonathan W. Valvano, valvano@mail.utexas.edu
-    You may use, edit, run or distribute this file
-    as long as the above copyright notice remains
- THIS SOFTWARE IS PROVIDED "AS IS".  NO WARRANTIES, WHETHER EXPRESS, IMPLIED
- OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF
- MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE.
- VALVANO SHALL NOT, IN ANY CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL,
- OR CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
- For more information about my classes, my research, and my books, see
- http://users.ece.utexas.edu/~valvano/
- */
 
 // center of X-ohm potentiometer connected to PE3/AIN0
 // bottom of X-ohm potentiometer connected to ground
@@ -41,7 +25,6 @@
 #include "SetClock.h"
 
 #define PE2             (*((volatile uint32_t *)0x40024010))
-#define PE1             (*((volatile uint32_t *)0x40024008))
 #define PF2             (*((volatile uint32_t *)0x40025010))
 #define PF1             (*((volatile uint32_t *)0x40025008))
 void DisableInterrupts(void); // Disable interrupts
@@ -130,11 +113,11 @@ void Switch_Init(void){ volatile unsigned long delay;
   SW1 = 0;                    // clear semaphores
   SW2 = 0;
   SW3 = 0;
-  GPIO_PORTE_AMSEL_R = ~0x3E;// disable analog function on PE5-2
-  GPIO_PORTE_PCTL_R = ~0x00FFFFF0; // configure PE5-2 as GPIO 
+  GPIO_PORTE_AMSEL_R = ~0x3F;// disable analog function on PE5-2
+  GPIO_PORTE_PCTL_R = ~0x00FFFFF0F; // configure PE5-2 as GPIO 
   GPIO_PORTE_DIR_R = ~0x38;  // make PE5-2 in 
-  GPIO_PORTE_AFSEL_R &= ~0x3E;// disable alt funct on PE5-2 
-  GPIO_PORTE_DEN_R |= 0x3E;   // enable digital I/O on PE5-2
+  GPIO_PORTE_AFSEL_R &= ~0x3F;// disable alt funct on PE5-2 
+  GPIO_PORTE_DEN_R |= 0x3F;   // enable digital I/O on PE5-2
   GPIO_PORTE_IS_R &= ~0x38;   // PE5-2 is edge-sensitive 
   GPIO_PORTE_IBE_R &= ~0x38;  // PE5-2 is not both edges 
   GPIO_PORTE_IEV_R |= 0x38;   // PE5-2 rising edge event
@@ -150,7 +133,7 @@ void GPIOPortE_Handler(void){
     GPIO_PORTE_ICR_R = 0x08;  // acknowledge flag3
     if(alarmSound){
       alarmSound = 0;
-      Debounce = 15;
+      Debounce = 30;
       AlarmTime = (TimeSecs + 60)%86400;
       return;
     }
@@ -163,7 +146,7 @@ void GPIOPortE_Handler(void){
     GPIO_PORTE_ICR_R = 0x10;  // acknowledge flag4
     if(alarmSound){
       alarmSound = 0;
-      Debounce = 15;
+      Debounce = 30;
       AlarmTime = (TimeSecs + 60)%86400;
       return;
     }
@@ -176,7 +159,7 @@ void GPIOPortE_Handler(void){
     GPIO_PORTE_ICR_R = 0x20;  // acknowledge flag5
     if(alarmSound){
       alarmSound = 0;
-      Debounce = 15;
+      Debounce = 30;
       return;
     }
     if(Debounce){
@@ -222,15 +205,13 @@ int main(void){
   Debounce = 0;
   TimeOut = 0;
   
-  //int16_t rtn = 5;
   EnableInterrupts();
-  //PE1 = 0x1;
-  Draw_Menu();
+  Draw_Menu();																										// draws the menu at the beginning of the program
   while(1){
-    if(Debounce){
+    if(Debounce){																									// checks for debounce, if there is, decrement the stalling variable
       Debounce--;
     }
-    if(alarmSound){
+    if(alarmSound){																											
       if(!flash){
         PF1 ^= 0x02;
         flash = 10;

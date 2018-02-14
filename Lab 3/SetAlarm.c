@@ -1,3 +1,14 @@
+/* ** SetAlarm.c **
+* Grant Guglielmo, Malek Al Sukhni
+* Created: 1/20/18
+* Contains the code for setting the alarm variable (based on user unputs) which is used
+* in ADCTestMain.c to decide when to trigger the alarm
+* Lab 3
+* Jamie Campos
+* Last modified: 2/13/18
+* outputs to ST7735 LCD screen connected to pins: PA2, PA3, PA5, PA6, PA7, 3.3 V and GND
+*/
+
 #include "SetAlarm.h"
 #include "ST7735.h"
 #include "Menu.h"

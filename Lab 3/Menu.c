@@ -1,3 +1,14 @@
+/* ** Menu.c **
+* Grant Guglielmo, Malek Al Sukhni
+* Created: 1/20/18
+* Contains the code for printing the main menu to the screen, as well as the code for navigating 
+* menu modes. Contains code for updating based on user input
+* Lab 3
+* Jamie Campos
+* Last modified: 2/13/18
+* outputs to ST7735 LCD screen connected to pins: PA2, PA3, PA5, PA6, PA7, 3.3 V and GND
+*/
+
 #include "Menu.h"
 #include "ADCTestMain.h"
 #include "ST7735.h"

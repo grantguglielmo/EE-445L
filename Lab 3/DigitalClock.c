@@ -1,3 +1,14 @@
+/* ** DigitalClock.c **
+* Grant Guglielmo, Malek Al Sukhni
+* Created: 1/20/18
+* Contains the code for printing the digital clock to the lcd screen. Decides what and where to print numbers
+* corresponding to hours and minutes.
+* Lab 3
+* Jamie Campos
+* Last modified: 2/13/18
+* outputs to ST7735 LCD screen connected to pins: PA2, PA3, PA5, PA6, PA7, 3.3 V and GND
+*/
+
 #include "DigitalClock.h"
 #include "ST7735.h"
 
