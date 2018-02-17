@@ -93,12 +93,14 @@ Port A, SSI0 (PA2, PA3, PA5, PA6, PA7) sends data to Nokia5110 LCD
 #include "application_commands.h"
 #include "LED.h"
 #include "Nokia5110.h"
+#include "ST7735.h"
+#include "ADCSWTrigger.h"
 #include <string.h>
-//#define SSID_NAME  "valvanoAP" /* Access point name to connect to */
-#define SEC_TYPE   SL_SEC_TYPE_WPA
-//#define PASSKEY    "12345678"  /* Password in case of secure AP */ 
-#define SSID_NAME  "ValvanoJonathaniPhone"
-#define PASSKEY    "y2uvdjfi5puyd"
+
+#define SSID_NAME  "MalekOnePlus"        
+#define SEC_TYPE   SL_SEC_TYPE_OPEN
+#define PASSKEY    "grundy445l"
+
 #define BAUD_RATE   115200
 void UART_Init(void){
   SysCtlPeripheralEnable(SYSCTL_PERIPH_UART0);
@@ -115,6 +117,9 @@ void UART_Init(void){
 #define MAX_PASSKEY_SIZE    32
 #define MAX_SSID_SIZE       32
 
+
+#define ADC             (*((volatile uint32_t *)0x40038030))
+#define ADCCTR          (*((volatile uint32_t *)0x40038038))
 
 #define SUCCESS             0
 
@@ -200,12 +205,109 @@ void Crash(uint32_t time){
     LED_RedToggle();
   }
 }
+
+// returns temp in 0.001 decimal fixed point
+int32_t findTemp(char* buff, char* tempArr){
+  char* tempChar = "\"temp\":";
+  int32_t temp = 0;
+  //int32_t tempDec = 0;
+  //int32_t sign = 1;
+  int32_t i = 0;
+  while(*buff){
+    if(*buff == tempChar[i]){
+      if(i == 6){
+        buff++;
+        i = 0;
+        ST7735_SetCursor(0,1);
+        ST7735_OutString("Temp~");
+        while(buff[i] != ','){
+          tempArr[i] = buff[i];
+          ST7735_OutChar(buff[i++]);
+        }
+        tempArr[i] = '\0';
+        ST7735_OutChar('C');
+        /*if(buff[0] == '-'){
+          sign = -1;
+          buff++;
+        }
+        if(buff[1] == '.'){
+          temp = buff[0] - '0';
+          buff += 2;
+        }
+        else if(buff[2] == '.'){
+          temp = (buff[0] - '0')*10;
+          temp += buff[1] - '0';
+          buff += 3;
+        }
+        else if(buff[3] == '.'){
+          temp = (buff[0] - '0')*100;
+          temp += (buff[1] - '0')*10;
+          temp += buff[2] - '0';
+          buff += 4;
+        }
+        if(buff[1] == ','){
+          tempDec = buff[0] - '0';
+          tempDec *= 100;
+        }
+        else if(buff[2] == ','){
+          tempDec = (buff[0] - '0')*10;
+          tempDec += buff[1] - '0';
+          tempDec *= 10;
+        }
+        else if(buff[3] == ','){
+          tempDec = (buff[0] - '0')*100;
+          tempDec += (buff[1] - '0')*10;
+          tempDec += buff[2] - '0';
+        }
+        temp *= 1000;
+        temp += tempDec;
+        temp *= sign;*/
+        break;
+      }
+      i++;
+    }
+    else{
+      i = 0;
+    }
+    buff++;
+  }
+  return temp;
+}
+
+char tempString[10];
+
+void parseV(int32_t volt){
+  //ST7735_SetCursor(0, 0);
+  //ST7735_OutString("Voltage~");
+  volt *= 3000;
+  volt /= 4096;
+  int32_t digit;
+  digit = volt / 1000;
+  //ST7735_OutChar(digit + '0');
+  tempString[0] = ((char)(digit + '0'));
+  volt = volt % 1000;
+  //ST7735_OutChar('.');
+  tempString[1] = ((char)('.'));
+  digit = volt / 100;
+  //ST7735_OutChar(digit + '0');
+  tempString[2] = ((char)(digit + '0'));
+  volt = volt % 100;
+  digit = volt / 10;
+  //ST7735_OutChar(digit + '0');
+  tempString[3] = ((char)(digit + '0'));
+  tempString[4] = '\0';
+  //ST7735_OutChar('V');
+}
+
+
 /*
  * Application's entry point
  */
 // 1) change Austin Texas to your city
 // 2) you can change metric to imperial if you want temperature in F
-#define REQUEST "GET /data/2.5/weather?q=Austin%20Texas&APPID=1bc54f645c5f1c75e681c102ed4bbca4&units=metric HTTP/1.1\r\nUser-Agent: Keil\r\nHost:api.openweathermap.org\r\nAccept: */*\r\n\r\n"
+#define REQUEST "GET /data/2.5/weather?q=Austin%2C%20Texas&APPID=1bc54f645c5f1c75e681c102ed4bbca4&units=metric HTTP/1.1\r\nUser-Agent: Keil\r\nHost:api.openweathermap.org\r\nAccept: */*\r\n\r\n"
+#define PAYLOAD1 "GET /query?city=Austin%2C%20Texas&id=Grant%2C%20Malek&greet=Voltage%3D"
+#define PAYLOAD2 "V& HTTP/1.1\r\nUser-Agent: Keil\r\nHost: ee445l-mha664-gg25488.appspot.com\r\n\r\n"
 // 1) go to http://openweathermap.org/appid#use 
 // 2) Register on the Sign up page
 // 3) get an API key (APPID) replace the 1234567890abcdef1234567890abcdef with your APPID
@@ -214,7 +316,12 @@ int main(void){int32_t retVal;  SlSecParams_t secParams;
   initClk();        // PLL 50 MHz
   UART_Init();      // Send data to PC, 115200 bps
   LED_Init();       // initialize LaunchPad I/O 
+  ADC0_InitSWTriggerSeq3_Ch9();
+  ADC = 6;
+  ADCCTR = 1;
+  char tempChar[10];
   UARTprintf("Weather App\n");
+  ST7735_InitR(INITR_REDTAB);
   retVal = configureSimpleLinkToDefaultState(pConfig); // set policies
   if(retVal < 0)Crash(4000000);
   retVal = sl_Start(0, pConfig, 0);
@@ -227,9 +334,11 @@ int main(void){int32_t retVal;  SlSecParams_t secParams;
     _SlNonOsMainLoopTask();
   }
   UARTprintf("Connected\n");
-  while(1){
+  int i = 0;
+  LED_GreenOn();
+  while(i++ < 10){
    // strcpy(HostName,"openweathermap.org");  // used to work 10/2015
-    strcpy(HostName,"api.openweathermap.org"); // works 9/2016
+    /*strcpy(HostName,"api.openweathermap.org"); // works 9/2016
     retVal = sl_NetAppDnsGetHostByName(HostName,
              strlen(HostName),&DestinationIP, SL_AF_INET);
     if(retVal == 0){
@@ -246,14 +355,37 @@ int main(void){int32_t retVal;  SlSecParams_t secParams;
         sl_Send(SockID, SendBuff, strlen(SendBuff), 0);// Send the HTTP GET 
         sl_Recv(SockID, Recvbuff, MAX_RECV_BUFF_SIZE, 0);// Receive response 
         sl_Close(SockID);
-        LED_GreenOn();
         UARTprintf("\r\n\r\n");
-        UARTprintf(Recvbuff);  UARTprintf("\r\n");
-      }
-    }
-    while(Board_Input()==0){}; // wait for touch
-    LED_GreenOff();
+        UARTprintf(Recvbuff);  UARTprintf("\r\n");*/
+        int32_t ADCvalue = ADC0_InSeq3();
+        parseV(ADCvalue);
+        //findTemp(Recvbuff, tempChar);
+        
+        strcpy(HostName,"ee445l-mha664-gg25488.appspot.com"); // works 9/2016
+        retVal = sl_NetAppDnsGetHostByName(HostName,
+             strlen(HostName),&DestinationIP, SL_AF_INET);
+        if(retVal == 0){
+          Addr.sin_family = SL_AF_INET;
+          Addr.sin_port = sl_Htons(80);
+          Addr.sin_addr.s_addr = sl_Htonl(DestinationIP);// IP to big endian 
+          ASize = sizeof(SlSockAddrIn_t);
+          SockID = sl_Socket(SL_AF_INET,SL_SOCK_STREAM, 0);
+          if( SockID >= 0 ){
+            retVal = sl_Connect(SockID, ( SlSockAddr_t *)&Addr, ASize);
+          }
+          if((SockID >= 0)&&(retVal >= 0)){
+            strcpy(SendBuff,PAYLOAD1);
+            strcat(SendBuff,tempString);
+            strcat(SendBuff, PAYLOAD2);
+            sl_Send(SockID, SendBuff, strlen(SendBuff), 0);// Send the HTTP GET 
+            sl_Recv(SockID, Recvbuff, MAX_RECV_BUFF_SIZE, 0);// Receive response 
+            sl_Close(SockID);
+          }
+        }
+      /*}
+    }*/
   }
+  LED_GreenOff();
 }
 
 /*!
