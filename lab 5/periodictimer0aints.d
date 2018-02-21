@@ -6,3 +6,4 @@
 .\periodictimer0aints.o: Switch.h
 .\periodictimer0aints.o: DAC.h
 .\periodictimer0aints.o: music.h
+.\periodictimer0aints.o: Song.h

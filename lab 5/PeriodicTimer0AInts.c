@@ -37,6 +37,7 @@
 #include "Switch.h"
 #include "DAC.h"
 #include "music.h"
+#include "Song.h"
 
 
 #define PF1       (*((volatile uint32_t *)0x40025008))
@@ -57,13 +58,17 @@ long StartCritical (void);    // previous I bit, disable interrupts
 void EndCritical(long sr);    // restore I bit to previous value
 void WaitForInterrupt(void);  // low power mode
 
-uint16_t I = 0;
-int16_t Song[] = {1};
+extern int Play_Song;
+extern unsigned int I;
+#define Song_arr blunder_8000Hz_8bit
+extern unsigned char Song_arr[];
 
 void SingSong(void){
   TIMER0_ICR_R = TIMER_ICR_TATOCINT; // acknowledge
-  I = (I+1)&0x3F; // 0 to 63
-  DAC_Out(Song[I]);
+  if(Play_Song){
+    I = (I+1)%SONG_SIZE;
+    DAC_Out(Song_arr[I]);
+  }
 }
 // if desired interrupt frequency is f, Timer0A_Init parameter is busfrequency/f
 #define F16HZ (50000000/16)
@@ -78,12 +83,19 @@ int main(void){
 //  Timer0A_Init(&SingSong, F20KHZ);     // initialize timer0A (20,000 Hz)
   Timer0A_Init(&SingSong, F16HZ);  // initialize timer0A (16 Hz)
   EnableInterrupts();
+  int playing = 0;
 
   while(1){
     switch(Board_Input()){
       case 1:     // right button
+        if(playing)
+          Stop();
+        else
+          Play(SONG);
+        playing ^= 1;
         break;
       case 2:     // left button
+        Rewind();
         break;
     }
   }

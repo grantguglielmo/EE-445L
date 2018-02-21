@@ -1,13 +1,14 @@
 Dependencies for Project 'Lab 5', Target 'PeriodicTimer0AInts': (DO NOT MODIFY !)
 F (.\startup.s)(0x519AF290)(--cpu Cortex-M4 --pd "__EVAL SETA 1" -g --apcs=interwork -I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\Luminary--list .\startup.lst --xref -o .\startup.o --depend .\startup.d)
-F (.\PeriodicTimer0AInts.c)(0x5A8DDD7D)(-c --cpu Cortex-M4 -D__EVAL -g -O0 --apcs=interwork --split_sections --signed_chars -I.. -I..\..\.. --C99-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\Luminary-Drvmdk -DPART_LM4F120H5QR-o .\periodictimer0aints.o --omf_browse .\periodictimer0aints.crf --depend .\periodictimer0aints.d)
+F (.\PeriodicTimer0AInts.c)(0x5A8DF278)(-c --cpu Cortex-M4 -D__EVAL -g -O0 --apcs=interwork --split_sections --signed_chars -I.. -I..\..\.. --C99-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\Luminary-Drvmdk -DPART_LM4F120H5QR-o .\periodictimer0aints.o --omf_browse .\periodictimer0aints.crf --depend .\periodictimer0aints.d)
 I (..//inc//tm4c123gh6pm.h)(0x5388B4CA)
 I (C:\Keil\ARM\ARMCC\include\stdint.h)(0x51C87C24)
 I (PLL.h)(0x55462230)
 I (Timer0A.h)(0x5548237E)
 I (Switch.h)(0x54EBA3CC)
-I (DAC.h)(0x5A8DDB73)
-I (music.h)(0x5A8DCCF1)
+I (DAC.h)(0x5A8DEBBA)
+I (music.h)(0x5A8DF217)
+I (Song.h)(0x5A8DEE61)
 F (.\Timer0A.c)(0x5548237E)(-c --cpu Cortex-M4 -D__EVAL -g -O0 --apcs=interwork --split_sections --signed_chars -I.. -I..\..\.. --C99-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\Luminary-Drvmdk -DPART_LM4F120H5QR-o .\timer0a.o --omf_browse .\timer0a.crf --depend .\timer0a.d)
 I (C:\Keil\ARM\ARMCC\include\stdint.h)(0x51C87C24)
 I (..//inc//tm4c123gh6pm.h)(0x5388B4CA)
@@ -17,16 +18,17 @@ I (PLL.h)(0x55462230)
 I (../inc/tm4c123gh6pm.h)(0x5388B4CA)
 F (.\PLL.h)(0x55462230)()
 F (.\Timer0A.h)(0x5548237E)()
-F (.\music.c)(0x5A8DCCE9)(-c --cpu Cortex-M4 -D__EVAL -g -O0 --apcs=interwork --split_sections --signed_chars -I.. -I..\..\.. --C99-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\Luminary-Drvmdk -DPART_LM4F120H5QR-o .\music.o --omf_browse .\music.crf --depend .\music.d)
-I (music.h)(0x5A8DCCF1)
+F (.\music.c)(0x5A8DF209)(-c --cpu Cortex-M4 -D__EVAL -g -O0 --apcs=interwork --split_sections --signed_chars -I.. -I..\..\.. --C99-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\Luminary-Drvmdk -DPART_LM4F120H5QR-o .\music.o --omf_browse .\music.crf --depend .\music.d)
+I (music.h)(0x5A8DF217)
 I (C:\Keil\ARM\ARMCC\include\stdint.h)(0x51C87C24)
-F (.\music.h)(0x5A8DCCF1)()
+F (.\music.h)(0x5A8DF217)()
 F (.\Switch.c)(0x554C10F8)(-c --cpu Cortex-M4 -D__EVAL -g -O0 --apcs=interwork --split_sections --signed_chars -I.. -I..\..\.. --C99-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\Luminary-Drvmdk -DPART_LM4F120H5QR-o .\switch.o --omf_browse .\switch.crf --depend .\switch.d)
 I (C:\Keil\ARM\ARMCC\include\stdint.h)(0x51C87C24)
 I (../inc/tm4c123gh6pm.h)(0x5388B4CA)
 F (.\Switch.h)(0x54EBA3CC)()
 F (.\DAC.c)(0x5A8DDB78)(-c --cpu Cortex-M4 -D__EVAL -g -O0 --apcs=interwork --split_sections --signed_chars -I.. -I..\..\.. --C99-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\Luminary-Drvmdk -DPART_LM4F120H5QR-o .\dac.o --omf_browse .\dac.crf --depend .\dac.d)
-I (DAC.h)(0x5A8DDB73)
+I (DAC.h)(0x5A8DEBBA)
 I (C:\Keil\ARM\ARMCC\include\stdint.h)(0x51C87C24)
 I (..//inc//tm4c123gh6pm.h)(0x5388B4CA)
-F (.\DAC.h)(0x5A8DDB73)()
+F (.\DAC.h)(0x5A8DEBBA)()
+F (.\Song.h)(0x5A8DEE61)()
