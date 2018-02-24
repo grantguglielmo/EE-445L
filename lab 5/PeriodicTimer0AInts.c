@@ -38,6 +38,7 @@
 #include "DAC.h"
 #include "music.h"
 #include "Song.h"
+#include "Timer1A.h"
 
 
 #define PF1       (*((volatile uint32_t *)0x40025008))
@@ -60,19 +61,28 @@ void WaitForInterrupt(void);  // low power mode
 
 extern int Play_Song;
 extern unsigned int I;
-#define Song_arr blunder_8000Hz_8bit
-extern unsigned char Song_arr[];
+extern unsigned int Note_I;
+#define Song_arr Wave
+extern const unsigned short Song_arr[];
+extern int Note_Reload[];
+extern Note Song_Notes[];
+
+void ChangeNote(void){
+  if(Play_Song){
+    Note_I = (Note_I + 1)%NUM_NOTES;
+    TIMER0_TAILR_R = Note_Reload[Song_Notes[Note_I]];
+  }
+}
 
 void SingSong(void){
-  TIMER0_ICR_R = TIMER_ICR_TATOCINT; // acknowledge
   if(Play_Song){
     I = (I+1)%SONG_SIZE;
     DAC_Out(Song_arr[I]);
   }
 }
 // if desired interrupt frequency is f, Timer0A_Init parameter is busfrequency/f
-#define F16HZ (50000000/16)
-#define F20KHZ (50000000/20000)
+#define F2HZ (80000000/2)
+#define F20KHZ (80000000/20000)
 //debug code
 int main(void){ 
   PLL_Init(Bus80MHz);              // bus clock at 50 MHz
@@ -81,7 +91,9 @@ int main(void){
   DAC_Init();
   Music_Init();
 //  Timer0A_Init(&SingSong, F20KHZ);     // initialize timer0A (20,000 Hz)
-  Timer0A_Init(&SingSong, F16HZ);  // initialize timer0A (16 Hz)
+  Timer0A_Init(&SingSong, F20KHZ);  // initialize timer0A (20 kHz)
+  Timer1A_Init(&ChangeNote, F2HZ);
+  TIMER0_TAILR_R = Note_Reload[Song_Notes[0]];
   EnableInterrupts();
   int playing = 0;
 
@@ -100,3 +112,4 @@ int main(void){
     }
   }
 }
+
